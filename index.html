@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./script.js" defer></script>
+</head>
+<body>
+    <h1>TIC-TAC-TOE</h1>
+    <div id="display">
+        <div id="game-settings-wrapper">
+            <div id="game-settings">
+                <div class="player" id="player-one">
+                    <div>Player 1:</div>
+                    <div class="name-container">
+                        <label for="player-one-name">Name:</label>
+                        <input type="text" id="player-one-name" required>
+                    </div>
+                    <div>Choose your fighter:</div>
+                    <div class="fighter-container">
+                        <button class="x-button" data-player="one" data-name="X">X</button>
+                        <button class="o-button" data-player="one" data-name="O">O</button>
+                    </div>
+                </div>
+                <div class="player" id="player-two">
+                    <div>Player 2:</div>
+                    <div class="name-container">
+                        <label for="player-two-name">Name:</label>
+                        <input type="text" id="player-two-name" required>
+                    </div>
+                    <div>Choose your fighter:</div>
+                    <div class="fighter-container">
+                        <button class="x-button" data-player="two" data-name="X">X</button>
+                        <button class="o-button" data-player="two" data-name="O">O</button>
+                    </div>
+                </div>
+                <div id="start-game-wrapper">
+                    <button id="start-game-button">Start Game</button>
+                </div>
+            </div>
+        </div>
+        <div id="game-container">
+            <div data-row="0" data-col="0"></div>
+            <div data-row="0" data-col="1"></div>
+            <div data-row="0" data-col="2"></div>
+            <div data-row="1" data-col="0"></div>
+            <div data-row="1" data-col="1"></div>
+            <div data-row="1" data-col="2"></div>
+            <div data-row="2" data-col="0"></div>
+            <div data-row="2" data-col="1"></div>
+            <div data-row="2" data-col="2"></div>
+        </div>
+    </div>
+</body>
+</html>
