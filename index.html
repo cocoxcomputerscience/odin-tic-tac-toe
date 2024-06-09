@@ -17,6 +17,7 @@
                     <div class="name-container">
                         <label for="player-one-name">Name:</label>
                         <input type="text" id="player-one-name" required>
+                        <div class="name-error-message"></div>
                     </div>
                     <div>Choose your fighter:</div>
                     <div class="fighter-container">
@@ -29,6 +30,7 @@
                     <div class="name-container">
                         <label for="player-two-name">Name:</label>
                         <input type="text" id="player-two-name" required>
+                        <div class="name-error-message"></div>
                     </div>
                     <div>Choose your fighter:</div>
                     <div class="fighter-container">
@@ -41,6 +43,16 @@
                 </div>
             </div>
         </div>
+        <div id="player-one-info">
+            player one
+            <div class="name"></div>
+            <div class="fighter"></div>
+        </div>
+        <div id="player-two-info">
+            player two
+            <div class="name"></div>
+            <div class="fighter"></div>
+        </div>
         <div id="game-container">
             <div data-row="0" data-col="0"></div>
             <div data-row="0" data-col="1"></div>
@@ -51,6 +63,10 @@
             <div data-row="2" data-col="0"></div>
             <div data-row="2" data-col="1"></div>
             <div data-row="2" data-col="2"></div>
+        </div>
+        <div id="results">
+            <div id="result-message"></div>
+            <button id="new-game-button" class="hide">New Game</button>
         </div>
     </div>
 </body>

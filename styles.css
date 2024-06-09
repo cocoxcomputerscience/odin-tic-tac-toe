@@ -29,9 +29,20 @@ h1 {
     padding: 1.5rem;
 }
 
+/* hide and show elements */
+.hide {
+    display: none !important;
+}
+
 /* display */
 #display {
     position: relative;
+    display: grid;
+    grid-template-columns: minmax(10rem, 1fr) min-content minmax(10rem, 1fr);
+    grid-template-rows: 1fr 4rem;
+    grid-template-areas: 
+        "player-one gameboard player-two"
+        "player-one results player-two";
 }
 
 /* game-settings */
@@ -41,8 +52,6 @@ h1 {
     height: 100%;
     background-color: orange;
     display: grid;
-    /* when game is started or new game is clicked, toggle display: none*/
-    /* display: none; */
 }
 
 #game-settings {
@@ -95,13 +104,41 @@ h1 {
     background-color: yellow;
 }
 
+/* display player info */
+#player-one-info {
+    grid-area: player-one;
+}
+
+#player-two-info {
+    grid-area: player-two;
+}
+
+#player-one-info,
+#player-two-info {
+    padding: 0 2rem;
+    justify-self: center;
+}
+
+/* show active player's turn */
+.active {
+    background-color: yellow;
+}
+
+/* results */
+#result {
+    grid-area: results;
+}
+
+#new-game-button {
+    
+}
+
 /* game-container */
 #game-container {
+    grid-area: gameboard;
     display: grid;
     grid-template-rows: repeat(3, 8rem);
     grid-template-columns: repeat(3, 8rem);
-    justify-content: center;
-    align-content: center;
     padding: 1.5rem;
 }
 
