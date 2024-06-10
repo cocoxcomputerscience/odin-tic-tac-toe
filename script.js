@@ -240,6 +240,10 @@ const screenController = (function() {
         playerTwoNameDisplay.textContent = "";
         playerTwoFighterDisplay.textContent = "";
 
+        // reset flags
+        firstPlayerFlag = true;
+        activePlayerFlag = true;
+
         // clear gameboard
         gameboard.clearBoard();
         cells.forEach(cell => cell.textContent = "");
