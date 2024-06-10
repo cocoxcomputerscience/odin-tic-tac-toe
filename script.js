@@ -1,11 +1,7 @@
-// tic tac toe
-
-
 const gameboard = (function() {
     let board = [["", "", ""],
                  ["", "", ""],
                  ["", "", ""]];
-    // how many cells are filled
     let filled = 0;
 
     const getBoard = () => board;
@@ -31,8 +27,8 @@ function createPlayer(name, fighter) {
 const gameController = (function() {
 
     // settings control
-    let fighterOne; 
-    let fighterTwo;
+    let fighterOne = null;
+    let fighterTwo = null;
     let playerOne; 
     let playerTwo;
 
@@ -42,31 +38,37 @@ const gameController = (function() {
 
     const getPlayers = () => ({playerOne, playerTwo});
     const setFighters = (fighter) => {
-        if (fighter.dataset.player == "one") fighterOne = fighter.dataset.name;
-        else fighterTwo = fighter.dataset.name;
+        if (fighter.dataset.player == "one") fighterOne = fighter;
+        else fighterTwo = fighter;
     };
+    const clearFighters = () => {
+        fighterOne = null;
+        fighterTwo = null;
+    }
 
     const validateInput = () => {
         if (playerOneNameInput.checkValidity()
             && playerTwoNameInput.checkValidity() 
             && (playerOneNameInput.value != playerTwoNameInput.value)
-            && (fighterOne != undefined && fighterTwo != undefined) ) return true;
+            && (fighterOne != null && fighterTwo != null) ) return true;
         else return false;
     };
+
     const checkSettings = () => {
         if (validateInput()) {
-            playerOne = createPlayer(playerOneNameInput.value, fighterOne);
-            playerTwo = createPlayer(playerTwoNameInput.value, fighterTwo);
+            playerOne = createPlayer(playerOneNameInput.value, fighterOne.dataset.name);
+            playerTwo = createPlayer(playerTwoNameInput.value, fighterTwo.dataset.name);
             activePlayer = playerOne;
             return true;
         } else {
-            screenController.showErrorMessage(playerOneNameInput, playerTwoNameInput);
+            screenController.showErrorMessage(playerOneNameInput, playerTwoNameInput, fighterOne, fighterTwo);
             return false;
         }
     };
 
     let activePlayer;
     const getActivePlayer = () => activePlayer;
+    const resetActivePlayer = () => activePlayer = playerOne;
 
     const switchPlayer = () => {
         activePlayer = activePlayer == playerOne ? playerTwo : playerOne;
@@ -87,13 +89,14 @@ const gameController = (function() {
         // checking if game is over
         threeInARow = checkThreeInARow(row, col);
 
-        // switch player 
-        switchPlayer();
-
         // variable 3 in a row == true || board is filled
         if (threeInARow == true || gameboard.getFilled() == 9) {
             screenController.showGameover(threeInARow);
+            return;
         }
+
+        // switch player 
+        switchPlayer();
     };
 
     const checkThreeInARow = (row, col) => {
@@ -120,15 +123,31 @@ const gameController = (function() {
         }
     };
 
-    return {checkSettings, setFighters, getPlayers, getPlayerNameInputs ,getActivePlayer, playRound};
+    return {checkSettings, setFighters, clearFighters, getPlayers, getPlayerNameInputs ,getActivePlayer, resetActivePlayer, playRound};
 })();
 
-// directly interacts with ui
 const screenController = (function() {
 
-    // settings
-    const chooseFighter = (fighter) => fighter.classList.add("chosen"); 
-    const removeFighter = (fighter) => fighter.classList.remove("chosen");
+    const gameSettingsWrapper = document.querySelector("#game-settings-wrapper");
+    const fighters = document.querySelectorAll(".fighter-container > button");
+    const playerOneNameErrorMsg = document.querySelector("#player-one .name-error-message");
+    const playerTwoNameErrorMsg = document.querySelector("#player-two .name-error-message");
+    const figherErrorMsg = document.querySelector("#fighter-error-message");
+    const startGameButton = document.querySelector("#start-game-button");
+
+    const cells = document.querySelectorAll("#game-container > div");
+    const playerOneNameDisplay = document.querySelector("#player-one-info > .name");
+    const playerTwoNameDisplay = document.querySelector("#player-two-info > .name");
+    const playerOneFighterDisplay = document.querySelector("#player-one-info > .fighter");
+    const playerTwoFighterDisplay = document.querySelector("#player-two-info > .fighter");
+    const resultMessage = document.querySelector("#result-message");
+    const newGameButton = document.querySelector("#new-game-button");
+    const startOverButton = document.querySelector("#start-over-button");
+
+    let activePlayerOneFlag = true;
+
+    const chooseFighter = (fighter) => fighter.classList.add("active-fighter"); 
+    const removeFighter = (fighter) => fighter.classList.remove("active-fighter");
     const clickHandlerFighter = (e) => {
         const player = e.target.dataset.player;
         const name = e.target.dataset.name;
@@ -142,106 +161,95 @@ const screenController = (function() {
             }
         });
     };
-    const fighters = document.querySelectorAll(".fighter-container > button");
-    fighters.forEach(fighter => fighter.addEventListener("click", clickHandlerFighter));
 
-    const playerOneNameErrorMsg = document.querySelector("#player-one .name-error-message");
-    const playerTwoNameErrorMsg = document.querySelector("#player-two .name-error-message");
-    const showErrorMessage = (playerOneNameInput, playerTwoNameInput) => {
-        playerNamesClearError();
+    const clearErrorMessage = () => {
+        playerOneNameErrorMsg.textContent = "";
+        playerTwoNameErrorMsg.textContent = "";
+        figherErrorMsg.textContent = "";
+    };
+
+    const showErrorMessage = (playerOneNameInput, playerTwoNameInput, fighterOne, fighterTwo) => {
+        clearErrorMessage();
+        if (fighterOne == null || fighterTwo == null) figherErrorMsg.textContent = "*Both players must select a fighter"
 
         if (playerOneNameInput.validity.valueMissing) playerOneNameErrorMsg.textContent = "*Input is required";
         if (playerTwoNameInput.validity.valueMissing) playerTwoNameErrorMsg.textContent = "*Input is required";
         
-        // do not display this error message for double empty inputs
+        // this will not be ran if both inputs are empty
         if ((playerOneNameInput.value == playerTwoNameInput.value) && !playerOneNameInput.validity.valueMissing) {
             playerOneNameErrorMsg.textContent = "*Names cannot be the same";
+            playerTwoNameErrorMsg.textContent = "*Names cannot be the same";
         }
     };
-    const playerNamesClearError = () => {
-        // clearing previous error messages
-        playerOneNameErrorMsg.textContent = "";
-        playerTwoNameErrorMsg.textContent = "";
-    };
 
-    const startGameButton = document.querySelector("#start-game-button");
-    const gameSettingsWrapper = document.querySelector("#game-settings-wrapper");
-    const playerOneNameDisplay = document.querySelector("#player-one-info > .name");
-    const playerOneFighterDisplay = document.querySelector("#player-one-info > .fighter");
-    const playerTwoNameDisplay = document.querySelector("#player-two-info > .name");
-    const playerTwoFighterDisplay = document.querySelector("#player-two-info > .fighter");
-    startGameButton.addEventListener("click", () => {
-        if (gameController.checkSettings()) {
-            gameSettingsWrapper.classList.toggle("hide");
-
-            // display player info 
-            playerOneNameDisplay.textContent = gameController.getPlayers().playerOne.name;
-            playerTwoNameDisplay.textContent = gameController.getPlayers().playerTwo.name;
-            playerOneFighterDisplay.textContent = gameController.getPlayers().playerOne.fighter;
-            playerTwoFighterDisplay.textContent = gameController.getPlayers().playerTwo.fighter;
-
-            // want to indicate player one's turn
-            screenController.showActivePlayer();
-        }
-    });
-
-
-    // gameboard
     const clickHandlerBoard = (e) => {
         let cell = e.target;
         gameController.playRound(cell);
     };
-    const cells = document.querySelectorAll("#game-container > div");
-    cells.forEach(cell => cell.addEventListener("click", clickHandlerBoard));
 
     const updateScreen = (cell, fighter) => {
         cell.textContent = fighter;
         showActivePlayer();
     };
 
-    let activePlayerOneFlag = true;
     const showActivePlayer = () => {
         if (activePlayerOneFlag) {
-            playerOneNameDisplay.classList.add("active");
-            playerTwoNameDisplay.classList.remove("active");
+            playerOneNameDisplay.parentElement.classList.add("active-player");
+            playerTwoNameDisplay.parentElement.classList.remove("active-player");
         } else {
-            playerTwoNameDisplay.classList.add("active"); 
-            playerOneNameDisplay.classList.remove("active");
+            playerTwoNameDisplay.parentElement.classList.add("active-player"); 
+            playerOneNameDisplay.parentElement.classList.remove("active-player");
         }
         activePlayerOneFlag = !activePlayerOneFlag;
     };
 
     const clearActivePlayer = () => {
-        playerOneNameDisplay.classList.remove("active");
-        playerTwoNameDisplay.classList.remove("active");
+        playerOneNameDisplay.parentElement.classList.remove("active-player");
+        playerTwoNameDisplay.parentElement.classList.remove("active-player");
     };
 
-    const resultMessage = document.querySelector("#result-message");
-    const newGameButton = document.querySelector("#new-game-button");
     const newGame = () => {
-        // clear player info
+        // clear gameboard
+        gameboard.clearBoard();
+        cells.forEach(cell => cell.textContent = "");
+        cells.forEach(cell => cell.addEventListener("click", clickHandlerBoard));
+
+        // hide result text and buttons
+        resultMessage.textContent = "";
+        newGameButton.classList.toggle("hide");
+        startOverButton.classList.toggle("hide");
+
+        // resetting active player settings
+        activePlayerOneFlag = true;
+        gameController.resetActivePlayer();
+        showActivePlayer();
+    };
+
+    const startOver = () => {
+        // clear player turn info
         playerOneNameDisplay.textContent = "";
         playerOneFighterDisplay.textContent = "";
         playerTwoNameDisplay.textContent = "";
         playerTwoFighterDisplay.textContent = "";
-        
-        activePlayerOneFlag = true;
+
+        // clear gameboard
         gameboard.clearBoard();
         cells.forEach(cell => cell.textContent = "");
         cells.forEach(cell => cell.addEventListener("click", clickHandlerBoard));
+
+        // hide result text and buttons
         resultMessage.textContent = "";
         newGameButton.classList.toggle("hide");
+        startOverButton.classList.toggle("hide");
 
         // settings
         gameSettingsWrapper.classList.toggle("hide");
-        fighters.forEach(fighter => fighter.classList.remove("chosen"));
-        playerNamesClearError();
-
-        // - clear name inputs
+        fighters.forEach(fighter => fighter.classList.remove("active-fighter"));
+        gameController.clearFighters();
         gameController.getPlayerNameInputs().playerOneNameInput.value = "";
         gameController.getPlayerNameInputs().playerTwoNameInput.value = "";
+        clearErrorMessage();
     };
-    newGameButton.addEventListener("click", newGame);
 
     const showGameover = (threeInARow) => {
         // display winner if three in a row
@@ -258,9 +266,30 @@ const screenController = (function() {
         // disable board
         cells.forEach(cell => cell.removeEventListener("click", clickHandlerBoard));
 
-        // offer new game
+        // offer new game or to start over from setting
         newGameButton.classList.toggle("hide");
+        startOverButton.classList.toggle("hide");
     };
+
+    startGameButton.addEventListener("click", () => {
+        if (gameController.checkSettings()) {
+            gameSettingsWrapper.classList.toggle("hide");
+
+            // display player info 
+            playerOneNameDisplay.textContent = gameController.getPlayers().playerOne.name;
+            playerTwoNameDisplay.textContent = gameController.getPlayers().playerTwo.name;
+            playerOneFighterDisplay.textContent = gameController.getPlayers().playerOne.fighter;
+            playerTwoFighterDisplay.textContent = gameController.getPlayers().playerTwo.fighter;
+
+            // want to indicate player one's turn
+            screenController.showActivePlayer();
+        }
+    });
+
+    fighters.forEach(fighter => fighter.addEventListener("click", clickHandlerFighter));
+    cells.forEach(cell => cell.addEventListener("click", clickHandlerBoard));
+    newGameButton.addEventListener("click", newGame);
+    startOverButton.addEventListener("click", startOver);
 
     return {updateScreen, showGameover, showActivePlayer, showErrorMessage};
 })();

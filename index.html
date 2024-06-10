@@ -13,43 +13,48 @@
         <div id="game-settings-wrapper">
             <div id="game-settings">
                 <div class="player" id="player-one">
-                    <div>Player 1:</div>
+                    <div>PLAYER 1:</div>
                     <div class="name-container">
                         <label for="player-one-name">Name:</label>
-                        <input type="text" id="player-one-name" required>
-                        <div class="name-error-message"></div>
+                        <div>
+                            <input type="text" id="player-one-name" maxlength="10" required>
+                            <div class="name-error-message"></div>
+                        </div>
                     </div>
-                    <div>Choose your fighter:</div>
                     <div class="fighter-container">
-                        <button class="x-button" data-player="one" data-name="X">X</button>
-                        <button class="o-button" data-player="one" data-name="O">O</button>
+                        <div>Choose your fighter:</div>
+                        <button class="fighter-button" data-player="one" data-name="X">X</button>
+                        <button class="fighter-button" data-player="one" data-name="O">O</button>
                     </div>
                 </div>
                 <div class="player" id="player-two">
-                    <div>Player 2:</div>
+                    <div>PLAYER 2:</div>
                     <div class="name-container">
                         <label for="player-two-name">Name:</label>
-                        <input type="text" id="player-two-name" required>
-                        <div class="name-error-message"></div>
+                        <div>
+                            <input type="text" id="player-two-name" maxlength="10" required>
+                            <div class="name-error-message"></div>
+                        </div>
                     </div>
-                    <div>Choose your fighter:</div>
                     <div class="fighter-container">
-                        <button class="x-button" data-player="two" data-name="X">X</button>
-                        <button class="o-button" data-player="two" data-name="O">O</button>
+                        <div>Choose your fighter:</div>
+                        <button class="fighter-button" data-player="two" data-name="X">X</button>
+                        <button class="fighter-button" data-player="two" data-name="O">O</button>
                     </div>
                 </div>
                 <div id="start-game-wrapper">
                     <button id="start-game-button">Start Game</button>
+                    <div id="fighter-error-message"></div>
                 </div>
             </div>
         </div>
         <div id="player-one-info">
-            player one
+            <div>Player One:</div>
             <div class="name"></div>
             <div class="fighter"></div>
         </div>
         <div id="player-two-info">
-            player two
+            <div>Player Two:</div>
             <div class="name"></div>
             <div class="fighter"></div>
         </div>
@@ -67,7 +72,9 @@
         <div id="results">
             <div id="result-message"></div>
             <button id="new-game-button" class="hide">New Game</button>
+            <button id="start-over-button" class="hide">Start Over</button>
         </div>
     </div>
+    <footer>&copy; Copyright 2024 cocoxcomputerscience@gmail.com</footer>
 </body>
 </html>
