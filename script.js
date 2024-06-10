@@ -1,10 +1,12 @@
 const gameboard = (function() {
+
     let board = [["", "", ""],
                  ["", "", ""],
                  ["", "", ""]];
     let filled = 0;
 
     const getBoard = () => board;
+    // returns how many cells are filled
     const getFilled = () => filled;
     const add = (row, col, fighter) => {
         board[row][col] = fighter;
@@ -26,7 +28,7 @@ function createPlayer(name, fighter) {
 
 const gameController = (function() {
 
-    // settings control
+    // settings controls
     let fighterOne = null;
     let fighterTwo = null;
     let playerOne; 
@@ -35,16 +37,17 @@ const gameController = (function() {
     const playerOneNameInput = document.querySelector("#player-one-name");
     const playerTwoNameInput = document.querySelector("#player-two-name");
     const getPlayerNameInputs = () => ({playerOneNameInput, playerTwoNameInput});
-
     const getPlayers = () => ({playerOne, playerTwo});
+
     const setFighters = (fighter) => {
         if (fighter.dataset.player == "one") fighterOne = fighter;
         else fighterTwo = fighter;
     };
+
     const clearFighters = () => {
         fighterOne = null;
         fighterTwo = null;
-    }
+    };
 
     const validateInput = () => {
         if (playerOneNameInput.checkValidity()
@@ -66,9 +69,13 @@ const gameController = (function() {
         }
     };
 
+    // controls after starting game
     let activePlayer;
     const getActivePlayer = () => activePlayer;
-    const resetActivePlayer = () => activePlayer = playerOne;
+    const setActivePlayer = (flag) => {
+        if (flag) activePlayer = playerOne;
+        else activePlayer = playerTwo;
+    }
 
     const switchPlayer = () => {
         activePlayer = activePlayer == playerOne ? playerTwo : playerOne;
@@ -82,28 +89,27 @@ const gameController = (function() {
         // if cell is occupied
         if (gameboard.getBoard()[row][col] != "") return;
 
-        // if cell not occupied, add to gameboard object and update display
+        // if cell is not occupied
         gameboard.add(row, col, getActivePlayer().fighter);
-        screenController.updateScreen(cell, getActivePlayer().fighter);
 
-        // checking if game is over
+        // checking if new input ended the game
         threeInARow = checkThreeInARow(row, col);
 
-        // variable 3 in a row == true || board is filled
+        // updating screen
+        screenController.updateScreen(cell, getActivePlayer().fighter, threeInARow);
+
         if (threeInARow == true || gameboard.getFilled() == 9) {
             screenController.showGameover(threeInARow);
             return;
         }
 
-        // switch player 
         switchPlayer();
     };
 
     const checkThreeInARow = (row, col) => {
-        // impossible to have 3 in a row until at least 5 choices are made
+        // impossible to have 3 in a row until at least 5 inputs
         if (gameboard.getFilled() < 5) return false;
     
-        // retrieving most recent input data
         let fighter = getActivePlayer().fighter;
         let vertical = 0;
         let horizontal = 0;
@@ -118,17 +124,16 @@ const gameController = (function() {
         }
     
         if (vertical === 3 || horizontal === 3 || diagonalLeft === 3 || diagonalRight === 3) return true;
-        else {
-            return false;
-        }
+        else return false;
     };
 
-    return {checkSettings, setFighters, clearFighters, getPlayers, getPlayerNameInputs ,getActivePlayer, resetActivePlayer, playRound};
+    return {checkSettings, setFighters, clearFighters, getPlayers, getPlayerNameInputs ,getActivePlayer, setActivePlayer, playRound};
 })();
 
 const screenController = (function() {
 
-    const gameSettingsWrapper = document.querySelector("#game-settings-wrapper");
+    const gameSettings = document.querySelector("#game-settings");
+    const gameMain = document.querySelector("#game-main");
     const fighters = document.querySelectorAll(".fighter-container > button");
     const playerOneNameErrorMsg = document.querySelector("#player-one .name-error-message");
     const playerTwoNameErrorMsg = document.querySelector("#player-two .name-error-message");
@@ -144,7 +149,9 @@ const screenController = (function() {
     const newGameButton = document.querySelector("#new-game-button");
     const startOverButton = document.querySelector("#start-over-button");
 
-    let activePlayerOneFlag = true;
+    // for both flags, true indicates playerOne; false indicates playerTwo
+    let activePlayerFlag = true;    // indicates the active player of the round
+    let firstPlayerFlag = true;     // indicates the player who started the first round 
 
     const chooseFighter = (fighter) => fighter.classList.add("active-fighter"); 
     const removeFighter = (fighter) => fighter.classList.remove("active-fighter");
@@ -175,7 +182,7 @@ const screenController = (function() {
         if (playerOneNameInput.validity.valueMissing) playerOneNameErrorMsg.textContent = "*Input is required";
         if (playerTwoNameInput.validity.valueMissing) playerTwoNameErrorMsg.textContent = "*Input is required";
         
-        // this will not be ran if both inputs are empty
+        // this will not run if both inputs are empty
         if ((playerOneNameInput.value == playerTwoNameInput.value) && !playerOneNameInput.validity.valueMissing) {
             playerOneNameErrorMsg.textContent = "*Names cannot be the same";
             playerTwoNameErrorMsg.textContent = "*Names cannot be the same";
@@ -187,20 +194,20 @@ const screenController = (function() {
         gameController.playRound(cell);
     };
 
-    const updateScreen = (cell, fighter) => {
+    const updateScreen = (cell, fighter, threeInARow) => {
         cell.textContent = fighter;
-        showActivePlayer();
+        if (!threeInARow) showActivePlayer();
     };
 
     const showActivePlayer = () => {
-        if (activePlayerOneFlag) {
+        if (activePlayerFlag) {
             playerOneNameDisplay.parentElement.classList.add("active-player");
             playerTwoNameDisplay.parentElement.classList.remove("active-player");
         } else {
             playerTwoNameDisplay.parentElement.classList.add("active-player"); 
             playerOneNameDisplay.parentElement.classList.remove("active-player");
         }
-        activePlayerOneFlag = !activePlayerOneFlag;
+        activePlayerFlag = !activePlayerFlag;
     };
 
     const clearActivePlayer = () => {
@@ -220,8 +227,9 @@ const screenController = (function() {
         startOverButton.classList.toggle("hide");
 
         // resetting active player settings
-        activePlayerOneFlag = true;
-        gameController.resetActivePlayer();
+        firstPlayerFlag = !firstPlayerFlag;
+        activePlayerFlag = firstPlayerFlag;
+        gameController.setActivePlayer(firstPlayerFlag);
         showActivePlayer();
     };
 
@@ -242,8 +250,11 @@ const screenController = (function() {
         newGameButton.classList.toggle("hide");
         startOverButton.classList.toggle("hide");
 
+        // hide main game
+        gameMain.classList.toggle("hide");
+
         // settings
-        gameSettingsWrapper.classList.toggle("hide");
+        gameSettings.classList.toggle("hide");
         fighters.forEach(fighter => fighter.classList.remove("active-fighter"));
         gameController.clearFighters();
         gameController.getPlayerNameInputs().playerOneNameInput.value = "";
@@ -261,7 +272,7 @@ const screenController = (function() {
         }
 
         // clear active player highlight
-        clearActivePlayer();
+        if (!threeInARow) clearActivePlayer();
 
         // disable board
         cells.forEach(cell => cell.removeEventListener("click", clickHandlerBoard));
@@ -273,7 +284,8 @@ const screenController = (function() {
 
     startGameButton.addEventListener("click", () => {
         if (gameController.checkSettings()) {
-            gameSettingsWrapper.classList.toggle("hide");
+            gameSettings.classList.toggle("hide");
+            gameMain.classList.toggle("hide");
 
             // display player info 
             playerOneNameDisplay.textContent = gameController.getPlayers().playerOne.name;
@@ -285,7 +297,6 @@ const screenController = (function() {
             screenController.showActivePlayer();
         }
     });
-
     fighters.forEach(fighter => fighter.addEventListener("click", clickHandlerFighter));
     cells.forEach(cell => cell.addEventListener("click", clickHandlerBoard));
     newGameButton.addEventListener("click", newGame);
